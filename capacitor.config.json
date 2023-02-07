@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "SMV-App",
+	"webDir": "build",
+	"bundledWebRuntime": false
+}

@@ -1,0 +1,8 @@
+{
+  "name": "SMV-App",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react",
+  "id": "c7d37cb2"
+}
