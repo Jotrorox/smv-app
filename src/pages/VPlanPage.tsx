@@ -1,4 +1,7 @@
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/react';
+import {
+    IonCard, IonCardContent, IonCardHeader, IonCardTitle,
+    IonCol, IonContent, IonGrid, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonRow, IonTitle, IonToolbar
+} from '@ionic/react';
 import React, { useState } from 'react';
 import { fetchData } from '../services/dataService';
 
@@ -33,6 +36,8 @@ const VPlanPage: React.FC = () => {
                         </IonCardContent>
                     </IonCard>
                 ))}
+
+
             </IonContent>
         </IonPage>
     );
