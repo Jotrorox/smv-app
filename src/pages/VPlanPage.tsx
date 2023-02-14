@@ -31,6 +31,10 @@ const Vertretungsplan: React.FC = () => {
         fetchData();
     }, []);
 
+    /** The Function below requests the VPlan data via Json
+     * The json data needs to have the following Structure (EXAMPLE):
+     * '{ "14-2-23":{"6a":{"stunde":"1", "vertreter":"En", "fach":"None", "raum":"2.26", "vertretungs_text":"Raumverlegung"}, "7b":{"stunde":"4", "vertreter":"Ma", "fach":"Ethik", "raum":"2.12", "vertretungs_text":"Ersatz"}},  "15-2-23":{"6a":{"stunde":"1", "vertreter":"En", "fach":"None", "raum":"2.26", "vertretungs_text":"Raumverlegung"}, "7b":{"stunde":"4", "vertreter":"Ma", "fach":"Ethik", "raum":"2.12", "vertretungs_text":"Ersatz"}}}
+     * **/
     const fetchData = () => {
         fetch("https://jsonendpoint.com/my-unique/endpoint/x6j0t ")
             .then((response) => response.json())
@@ -42,6 +46,7 @@ const Vertretungsplan: React.FC = () => {
     const doRefresh = (event: CustomEvent) => {
         fetchData();
         event.detail.complete();
+        console.log("Done Refreshing");
     };
 
     return (
