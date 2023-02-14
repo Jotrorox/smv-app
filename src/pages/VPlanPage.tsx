@@ -1,25 +1,41 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
-import './VPlanPage.css';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/react';
+import React, { useState } from 'react';
+import { fetchData } from '../services/dataService';
 
 const VPlanPage: React.FC = () => {
-  return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Vertretungsplan</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Vertretungsplan</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <ExploreContainer name="Hier wird der Vertretungsplan angezeigt werden" />
-      </IonContent>
-    </IonPage>
-  );
+    const [data, setData] = useState([]);
+
+    const handleRefresh = (event: CustomEvent) => {
+        fetchData().then((response) => {
+            setData(response);
+            event.detail.complete();
+        });
+    };
+
+    return (
+        <IonPage>
+            <IonHeader>
+                <IonToolbar>
+                    <IonTitle>Data Page</IonTitle>
+                </IonToolbar>
+            </IonHeader>
+            <IonContent>
+                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+                    <IonRefresherContent />
+                </IonRefresher>
+                {data.map((item, index) => (
+                    <IonCard key={index}>
+                        <IonCardHeader>
+                            <IonCardTitle>{item[0]}</IonCardTitle>
+                        </IonCardHeader>
+                        <IonCardContent>
+                            {item[1]}
+                        </IonCardContent>
+                    </IonCard>
+                ))}
+            </IonContent>
+        </IonPage>
+    );
 };
 
 export default VPlanPage;
