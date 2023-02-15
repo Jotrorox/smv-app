@@ -1,20 +1,12 @@
-import React, { useState, useEffect } from "react";
-import {
-    IonContent,
-    IonHeader,
-    IonPage,
-    IonRefresher,
-    IonRefresherContent,
-    IonCard,
-    IonCardContent,
-    IonList,
-    IonItem,
-    IonLabel,
-} from "@ionic/react";
+import { IonContent, IonHeader, IonPage, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/react';
+import { RefresherEventDetail } from '@ionic/core';
+import React, { useState, useEffect } from 'react';
+import { useIonViewDidEnter } from '@ionic/react';
+import './VPlanPage.css';
 
-interface VertretungsData {
-    [key: string]: {
-        [key: string]: {
+interface Plan {
+    [day: string]: {
+        [klasse: string]: {
             stunde: string;
             vertreter: string;
             fach: string;
@@ -25,72 +17,85 @@ interface VertretungsData {
 }
 
 const Vertretungsplan: React.FC = () => {
-    const [data, setData] = useState<VertretungsData>({});
+    const [plan, setPlan] = useState<Plan>({});
 
-    useEffect(() => {
-        fetchData();
-    }, []);
 
-    /** The Function below requests the VPlan data via Json
-     * The json data needs to have the following Structure (EXAMPLE):
-     * '{ "14-2-23":{"6a":{"stunde":"1", "vertreter":"En", "fach":"None", "raum":"2.26", "vertretungs_text":"Raumverlegung"}, "7b":{"stunde":"4", "vertreter":"Ma", "fach":"Ethik", "raum":"2.12", "vertretungs_text":"Ersatz"}},  "15-2-23":{"6a":{"stunde":"1", "vertreter":"En", "fach":"None", "raum":"2.26", "vertretungs_text":"Raumverlegung"}, "7b":{"stunde":"4", "vertreter":"Ma", "fach":"Ethik", "raum":"2.12", "vertretungs_text":"Ersatz"}}}
-     * **/
-    const fetchData = () => {
-        fetch("https://jsonendpoint.com/my-unique/endpoint/x6j0t ")
-            .then((response) => response.json())
-            .then((data: VertretungsData) => {
-                setData(data);
-            });
+
+
+    const fetchPlan = async () => {
+        const response = await fetch('https://jsonendpoint.com/my-unique/endpoint/x6j0t');
+        const data = await response.json();
+        setPlan(data);
+        console.debug("Fetched Data")
     };
 
-    const doRefresh = (event: CustomEvent) => {
-        fetchData();
+    useEffect(() => {
+        fetchPlan();
+    }, []);
+
+    const refreshPlan = async (event: CustomEvent<RefresherEventDetail>) => {
+        await fetchPlan();
+        console.debug("Refresh Complete")
         event.detail.complete();
-        console.log("Done Refreshing");
+    };
+    useIonViewDidEnter(async () => {
+        await fetchPlan();
+    });
+
+
+    // rest of the component code
+
+
+    const renderTableRows = (day: string, klasse: string) => {
+        const { stunde, vertreter, fach, raum, vertretungs_text } = plan[day][klasse];
+        return (
+            <tr key={`${day}-${klasse}`}>
+                <td>{klasse}</td>
+                <td>{stunde}</td>
+                <td>{vertreter}</td>
+                <td>{fach}</td>
+                <td>{raum}</td>
+                <td>{vertretungs_text}</td>
+            </tr>
+        );
+    };
+
+    const renderCard = (day: string) => {
+        const klasses = Object.keys(plan[day]);
+        return (
+            <div className="card" key={day}>
+                <h2 className="card_title">{day}</h2>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Klasse</th>
+                        <th>Stunde</th>
+                        <th>Vertreter</th>
+                        <th>Fach</th>
+                        <th>Raum</th>
+                        <th>Vertretungs-text</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {klasses.map((klasse) => renderTableRows(day, klasse))}
+                    </tbody>
+                </table>
+            </div>
+        );
     };
 
     return (
         <IonPage>
             <IonHeader>
-                <h1>Vertretungsplan</h1>
+                <IonToolbar>
+                    <IonTitle class="title">Vertretungsplan</IonTitle>
+                </IonToolbar>
             </IonHeader>
             <IonContent>
-                <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
-                    <IonRefresherContent></IonRefresherContent>
+                <IonRefresher slot="fixed" onIonRefresh={refreshPlan}>
+                    <IonRefresherContent />
                 </IonRefresher>
-                {Object.keys(data).map((day, index) => (
-                    <IonCard key={index}>
-                        <IonCardContent>
-                            <h2>{day}</h2>
-                            <IonList>
-                                {Object.keys(data[day]).map((klasse, index) => (
-                                    <IonItem key={index}>
-                                        <IonLabel>
-                                            <h3>{klasse}</h3>
-                                            <p>
-                                                <strong>Stunde:</strong> {data[day][klasse].stunde}
-                                            </p>
-                                            <p>
-                                                <strong>Vertreter:</strong>{" "}
-                                                {data[day][klasse].vertreter}
-                                            </p>
-                                            <p>
-                                                <strong>Fach:</strong> {data[day][klasse].fach}
-                                            </p>
-                                            <p>
-                                                <strong>Raum:</strong> {data[day][klasse].raum}
-                                            </p>
-                                            <p>
-                                                <strong>Vertretungs-text:</strong>{" "}
-                                                {data[day][klasse].vertretungs_text}
-                                            </p>
-                                        </IonLabel>
-                                    </IonItem>
-                                ))}
-                            </IonList>
-                        </IonCardContent>
-                    </IonCard>
-                ))}
+                {Object.keys(plan).map((day) => renderCard(day))}
             </IonContent>
         </IonPage>
     );
